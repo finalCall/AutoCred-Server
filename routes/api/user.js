@@ -105,4 +105,19 @@ router.post('/pay', (req, res) => {
         })
 });
 
+router.get('/wallet', (req, res) => {
+    const { userName } = req.body;
+    User.findOne({ userName })
+        .then(user => {
+            if (user)
+                return res.status(200).json(user.wallet);
+            else {
+                return res.status(400).json({ msg: "User not found!" })
+            }
+        })
+        .catch(err => {
+            res.status(400).json({ msg: "Something went wrong!" })
+        })
+})
+
 module.exports = router;
