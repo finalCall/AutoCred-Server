@@ -21,6 +21,6 @@ app.use('/',(req,res)=>{
     res.send('hello');
 })
 
-const port = 5000 || process.env.PORT;
+//const port = 5000 || process.env.PORT;
 
-app.listen(port, () => { console.log(`server started at port ${port}`) });
+app.listen(process.env.PORT, '0.0.0.0');
