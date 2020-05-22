@@ -16,6 +16,9 @@ mongoose.connect(config.mongoURI,
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use('/',(req,res)=>{
+    res.send("hi");
+})
 app.use('/api/user', user);
 
 const port = 5000 || process.env.PORT;
