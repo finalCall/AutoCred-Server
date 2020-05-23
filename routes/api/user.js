@@ -62,18 +62,17 @@ router.post('/login', (req, res) => {
         })
 });
 
-router.post('/pay/:phoneNumber1/:phoneNumber2/:amount', (req, res) => {
-    
-    const { phoneNumber1, phoneNumber2, amount } = {
-        phoneNumber1: req.params.phoneNumber1,
-        phoneNumber2: req.params.phoneNumber2,
-        amount: req.params.amount
-    };
+router.post('/pay/:userName1/:phoneNumber2/:amount', (req, res) => {
 
-    if (!phoneNumber1 || !phoneNumber2 || !amount) {
+    const { userName1, phoneNumber2, amount } = {
+        userName1: req.params.userName1,
+        phoneNumber2: req.params.phoneNumber2,
+        amount: Number(req.params.amount)
+    };
+    if (!userName1 || !phoneNumber2 || !amount) {
         return res.status(400).json({ msg: "Please Enter All fields!" });
     }
-    User.findOne({ 'phoneNumber': phoneNumber1 })
+    User.findOne({ 'userName': userName1 })
         .then(user1 => {
             if (!user1) return res.status(400).json({ msg: "User1 Does Not exist" });
             else {
@@ -110,10 +109,55 @@ router.post('/pay/:phoneNumber1/:phoneNumber2/:amount', (req, res) => {
         })
 });
 
+router.post('/receive/:userName1/:userName2/:amount', (req, res) => {
+
+    const { userName1, userName2, amount } = {
+        userName1: req.params.userName1,
+        userName2: req.params.userName2,
+        amount: Number(req.params.amount)
+    };
+    if (!userName1 || !userName2 || !amount) {
+        return res.status(400).json({ msg: "Please Enter All fields!" });
+    }
+    User.findOne({ 'userName': userName1 })
+        .then(user1 => {
+            if (!user1) return res.status(400).json({ msg: "User1 Does Not exist" });
+            else {
+                User.findOne({ 'userName': userName2 })
+                    .then(user2 => {
+                        if (!user2) return res.status(400).json({ msg: "User1 Does Not exist" });
+                        else {
+                            if (user1.wallet < amount)
+                                return res.status(400).json({ msg: "Insufficient Balance!" })
+                            else {
+                                user1.wallet -= amount;
+
+                                user1.save()
+                                    .then(res1 => {
+                                        user2.wallet += amount;
+                                        user2.save()
+                                            .then(res2 => {
+                                                return res.status(200).json({ msg: `Money Transfered to ${userName2}` })
+                                            })
+                                            .catch(err2 => {
+                                                return res.status(400).json({ msg: `Money Deducted and not settled to ${userName2}` })
+                                            })
+                                    })
+                                    .catch(err => {
+                                        res.status(400).json({ msg: "Something went wrong!" })
+                                    })
+                            }
+                        }
+                    })
+            }
+        })
+        .catch(err => {
+            res.status(400).json({ msg: "Something went wrong!" })
+        })
+});
 router.get('/wallet/:user', (req, res) => {
-    
-    const { userName } = {userName: req.params.user};
-    console.log({ userName })
+
+    const { userName } = { userName: req.params.user };
     User.findOne({ userName })
         .then(user => {
             if (user)
