@@ -62,8 +62,13 @@ router.post('/login', (req, res) => {
         })
 });
 
-router.post('/pay', (req, res) => {
-    const { phoneNumber1, phoneNumber2, amount } = req.body;
+router.post('/pay/:phoneNumber1/:phoneNumber2/:amount', (req, res) => {
+    
+    const { phoneNumber1, phoneNumber2, amount } = {
+        phoneNumber1: req.params.phoneNumber1,
+        phoneNumber2: req.params.phoneNumber2,
+        amount: req.params.amount
+    };
 
     if (!phoneNumber1 || !phoneNumber2 || !amount) {
         return res.status(400).json({ msg: "Please Enter All fields!" });
@@ -105,8 +110,10 @@ router.post('/pay', (req, res) => {
         })
 });
 
-router.get('/wallet', (req, res) => {
-    const { userName } = req.body;
+router.get('/wallet/:user', (req, res) => {
+    
+    const { userName } = {userName: req.params.user};
+    console.log({ userName })
     User.findOne({ userName })
         .then(user => {
             if (user)
